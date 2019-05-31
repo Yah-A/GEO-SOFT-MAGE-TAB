@@ -48,10 +48,13 @@ kw = args.keyword
 fp = args.fp
 # Validating the path entered
 if fp:
+     # check the file path 
     if not os.path.exists(fp) or fp[-1] == "\\" or fp[-1] == "/":
         print("The path is invalid or not created yet, please enter a valid path or create this directory first")
+        #sys.exit(0) to handle enviroment variables
         sys.exit(0)
     else:
+        # to change the directory
         os.chdir(fp.replace("\\", "\\""\\"))
 # Validating the start/end dates entry and handling the exception of entering and end date without a start date and
 # entering a start date greater than end date
@@ -70,11 +73,15 @@ if args.sd:
         if sd > ed:
             print("You've entered an invalid start/end date, start date should be Before end date!")
             print("Try Again!!!")
+            #to indicate failure
             sys.exit(1)
 else:
+    #{} for passing string from input of user or variable
     print("You Entered no Start/End Dates, hence search will be performed on the "
           "LAST 6 MONTHS as default, from {} to {} ...".format(datetime.date.today()-relativedelta(months=+6),datetime.date.today()))
+    #relativedelta to Arrange months correctly
     sd = datetime.date.today()-relativedelta(months=+6)
+    # to assign data
     ed = datetime.date.today()
 
 # Reviewing the entered parameters
@@ -90,12 +97,15 @@ askme('Would you like to proceed with these parameters?: [y/N]')
 # We can use this in the final report
 # print(en_dt - st_dt)
 
+#Through urllib, we can access websites, download data, parse data, modify your header
 response = urllib2.urlopen('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term={0}[ETYP]+AND+'
                            '%22{1}%22[PDAT]+:+%22{2}%22[PDAT][Filter]&retmax=10000&usehistory=y'.format(kw, sd, ed))
 data = response.read()
 # print ("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term={0}[ETYP]+AND+%22{1}%22[PDAT]+:"
 #      "+%22{2}%22[PDAT][Filter]&retmax=10000&usehistory=y".format(kw,sd,ed))
 # print(data)
+
+# Writing text to file
 filename = "IDs.txt"
 file_ = open(filename, 'w')
 # To build a tree out of a continuous string
@@ -140,28 +150,35 @@ def log(msg):
 
 
 for ID in IDs:
+    # the place where soft files are founding
     server = 'ftp.ncbi.nlm.nih.gov'
     directory = 'geo/series/{0}{1}nnn/{0}{2}/soft'.format(kw, ID[3:6], ID[3:])
-
+    #soft files zip
     soft = '{}{}_family.soft.gz'.format(kw, ID[3:])
+    #Soft filse unzip
     soft2 = '{}{}_family.soft'.format(kw, ID[3:])
     log("connecting to server")
     ftp = ftplib.FTP(server)
     ftp.login()
 
-    log("changing to directory: {}".format(directory))
+    log("changing to directory: {}".format(directory)
+    #Change current working directory to path
     ftp.cwd(directory)
+    #to store results
     ftp.retrlines('LIST')
-
+    #to creat directory
     os.makedirs(ID)
     os.chdir(ID)
 
     log("starting to download: {}".format(soft))
+    #we retrieve the binary data from the remote server, then we write to the local file what we find for downloading file+
+    ..
     ftp.retrbinary("RETR {}".format(soft), open(soft, 'wb').write)
 
     with gzip.open(soft, 'rb') as f_in:
         with open(soft2, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
+     # for removing the file path. If the path is a directory
     os.remove(soft)
     os.chdir(fp.replace("\\", "\\""\\"))
 
